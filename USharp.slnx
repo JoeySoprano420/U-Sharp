@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/USharp.Collections/USharp.Collections.csproj" />
+    <Project Path="src/USharp.Concurrency/USharp.Concurrency.csproj" />
+    <Project Path="src/USharp.Core/USharp.Core.csproj" />
+    <Project Path="src/USharp.Diagnostics/USharp.Diagnostics.csproj" />
+    <Project Path="src/USharp.IO/USharp.IO.csproj" />
+    <Project Path="src/USharp.Math/USharp.Math.csproj" />
+    <Project Path="src/USharp.Net/USharp.Net.csproj" />
+    <Project Path="src/USharp.Serialization/USharp.Serialization.csproj" />
+    <Project Path="src/USharp.Text/USharp.Text.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/USharp.Collections.Tests/USharp.Collections.Tests.csproj" />
+    <Project Path="tests/USharp.Core.Tests/USharp.Core.Tests.csproj" />
+    <Project Path="tests/USharp.IO.Tests/USharp.IO.Tests.csproj" />
+    <Project Path="tests/USharp.Math.Tests/USharp.Math.Tests.csproj" />
+    <Project Path="tests/USharp.Text.Tests/USharp.Text.Tests.csproj" />
+  </Folder>
+</Solution>
