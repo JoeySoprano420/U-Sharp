@@ -140,3 +140,4 @@ All library projects target **net9.0**.
 ## License
 
 This project is open source. See the repository for details.
+This project is open source. See the repository for details.
