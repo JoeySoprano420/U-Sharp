@@ -171,7 +171,11 @@ public sealed class CSharpEmitter
         AppendIndent();
         if (i.Else != null)
         {
-            _sb.AppendLine("} else {");
+            _sb.AppendLine("}");
+            AppendIndent();
+            _sb.AppendLine("else");
+            AppendIndent();
+            _sb.AppendLine("{");
             _indent++;
             foreach (var s in i.Else.Statements) EmitStatement(s);
             _indent--;

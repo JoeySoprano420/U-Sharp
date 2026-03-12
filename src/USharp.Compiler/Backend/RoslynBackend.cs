@@ -51,7 +51,8 @@ public sealed class RoslynBackend
             var runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
             foreach (var dll in Directory.GetFiles(runtimeDir, "*.dll"))
             {
-                try { refs.Add(MetadataReference.CreateFromFile(dll)); } catch { /* skip unreadable */ }
+                try { refs.Add(MetadataReference.CreateFromFile(dll)); }
+                catch (Exception) { /* skip assemblies that can't be loaded as metadata references */ }
             }
         }
         return refs;
