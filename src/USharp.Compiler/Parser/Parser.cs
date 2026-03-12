@@ -78,9 +78,16 @@ public sealed class Parser
     {
         var loc = Current.ToLocation();
         Consume(); // module
-        var name = Expect(TokenKind.Identifier).Text;
+        var nameParts = new System.Text.StringBuilder();
+        nameParts.Append(Expect(TokenKind.Identifier).Text);
+        while (Current.Kind == TokenKind.Dot)
+        {
+            Consume(); // consume '.'
+            nameParts.Append('.');
+            nameParts.Append(Expect(TokenKind.Identifier).Text);
+        }
         SkipNewLines();
-        return new ModuleDecl(name, loc);
+        return new ModuleDecl(nameParts.ToString(), loc);
     }
 
     private ClassDecl ParseClass()
@@ -336,10 +343,51 @@ public sealed class Parser
         return new WhileStatement(condition, body, loc);
     }
 
+    // Known directive names for USP1001 suggestions
+    private static readonly string[] KnownDirectives =
+        ["print", "send", "return", "if", "else", "while", "for", "each", "fn", "class", "module", "filter", "map", "sort"];
+
+    private static string? SuggestDirective(string name)
+    {
+        // Simple edit-distance suggestion (Levenshtein ≤ 2)
+        string? best = null;
+        int bestDist = int.MaxValue;
+        foreach (var directive in KnownDirectives)
+        {
+            int dist = EditDistance(name, directive);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = directive;
+            }
+        }
+        return bestDist <= 2 ? best : null;
+    }
+
+    private static int EditDistance(string a, string b)
+    {
+        int m = a.Length, n = b.Length;
+        int[,] dp = new int[m + 1, n + 1];
+        for (int i = 0; i <= m; i++) dp[i, 0] = i;
+        for (int j = 0; j <= n; j++) dp[0, j] = j;
+        for (int i = 1; i <= m; i++)
+            for (int j = 1; j <= n; j++)
+                dp[i, j] = a[i - 1] == b[j - 1]
+                    ? dp[i - 1, j - 1]
+                    : 1 + Math.Min(dp[i - 1, j - 1], Math.Min(dp[i - 1, j], dp[i, j - 1]));
+        return dp[m, n];
+    }
+
+    private static bool IsDirectiveLikeToken(TokenKind kind) =>
+        kind == TokenKind.StringLiteral || kind == TokenKind.IntLiteral ||
+        kind == TokenKind.FloatLiteral || kind == TokenKind.BoolLiteral ||
+        kind == TokenKind.Identifier;
+
     private StatementNode? ParseIdentifierStatement()
     {
         var loc = Current.ToLocation();
         int saved = _pos;
+        var identName = Current.Text;
         _pos++; // skip identifier
 
         if (Current.Kind == TokenKind.Empty || Current.Kind == TokenKind.Retain)
@@ -360,7 +408,25 @@ public sealed class Parser
         else
         {
             _pos = saved;
+
+            // Detect unknown directive: bare identifier followed immediately by a
+            // non-operator token on the same line (e.g. `pront "hello"`).
+            bool unknownDirectiveDetected = false;
+            if (IsDirectiveLikeToken(Peek().Kind) &&
+                !KnownDirectives.Contains(identName, StringComparer.Ordinal))
+            {
+                var suggestion = SuggestDirective(identName);
+                var msg = $"Unknown directive '{identName}'.";
+                if (suggestion != null) msg += $" Did you mean '{suggestion}'?";
+                _diagnostics.Add(Diagnostic.Error(
+                    DiagnosticCode.USP1001, msg, loc.Line, loc.Column,
+                    suggestion != null ? suggestion : null));
+                unknownDirectiveDetected = true;
+            }
+
             var expr = ParseExpression();
+            // If unknown directive was detected, consume the argument expression too
+            _ = unknownDirectiveDetected;
 
             // Check for pipeline: NewLine + Indent + filter/map/sort
             int savedPos = _pos;
