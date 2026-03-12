@@ -35,6 +35,13 @@ public sealed class Lexer
         ["var"] = TokenKind.Var,
     };
 
+    /// <summary>
+    /// The set of all known U-Sharp keyword strings. Used by the parser for
+    /// directive typo detection (USP1001) so that the list is defined in one place.
+    /// </summary>
+    public static IReadOnlySet<string> KeywordNames { get; } =
+        new HashSet<string>(Keywords.Keys, StringComparer.Ordinal);
+
     public Lexer(string source)
     {
         _source = source;

@@ -343,16 +343,12 @@ public sealed class Parser
         return new WhileStatement(condition, body, loc);
     }
 
-    // Known directive names for USP1001 suggestions
-    private static readonly string[] KnownDirectives =
-        ["print", "send", "return", "if", "else", "while", "for", "each", "fn", "class", "module", "filter", "map", "sort"];
-
     private static string? SuggestDirective(string name)
     {
-        // Simple edit-distance suggestion (Levenshtein ≤ 2)
+        // Simple edit-distance suggestion (Levenshtein ≤ 2) using the lexer's keyword list
         string? best = null;
         int bestDist = int.MaxValue;
-        foreach (var directive in KnownDirectives)
+        foreach (var directive in USharp.Compiler.Lexer.Lexer.KeywordNames)
         {
             int dist = EditDistance(name, directive);
             if (dist < bestDist)
@@ -413,7 +409,7 @@ public sealed class Parser
             // non-operator token on the same line (e.g. `pront "hello"`).
             bool unknownDirectiveDetected = false;
             if (IsDirectiveLikeToken(Peek().Kind) &&
-                !KnownDirectives.Contains(identName, StringComparer.Ordinal))
+                !USharp.Compiler.Lexer.Lexer.KeywordNames.Contains(identName))
             {
                 var suggestion = SuggestDirective(identName);
                 var msg = $"Unknown directive '{identName}'.";

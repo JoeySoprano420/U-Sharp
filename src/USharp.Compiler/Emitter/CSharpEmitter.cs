@@ -237,16 +237,29 @@ public sealed class CSharpEmitter
             switch (stage.Operation)
             {
                 case "filter":
-                    var filterArg = stage.Argument != null ? EmitExpr(stage.Argument) : "x";
-                    chain.Append($".Where(x => x.{ToPascalCase(filterArg)})");
+                    // Simple identifier arg → x.PascalCase; complex expr → lambda predicate
+                    if (stage.Argument is IdentifierExpr filterId)
+                        chain.Append($".Where(x => x.{ToPascalCase(filterId.Name)})");
+                    else if (stage.Argument != null)
+                        chain.Append($".Where(x => {EmitExpr(stage.Argument)})");
+                    else
+                        chain.Append(".Where(x => x)");
                     break;
                 case "map":
-                    var mapArg = stage.Argument != null ? EmitExpr(stage.Argument) : "x";
-                    chain.Append($".Select(x => x.{ToPascalCase(mapArg)})");
+                    if (stage.Argument is IdentifierExpr mapId)
+                        chain.Append($".Select(x => x.{ToPascalCase(mapId.Name)})");
+                    else if (stage.Argument != null)
+                        chain.Append($".Select(x => {EmitExpr(stage.Argument)})");
+                    else
+                        chain.Append(".Select(x => x)");
                     break;
                 case "sort":
-                    var sortArg = stage.Argument != null ? EmitExpr(stage.Argument) : "x";
-                    chain.Append($".OrderBy(x => x.{ToPascalCase(sortArg)})");
+                    if (stage.Argument is IdentifierExpr sortId)
+                        chain.Append($".OrderBy(x => x.{ToPascalCase(sortId.Name)})");
+                    else if (stage.Argument != null)
+                        chain.Append($".OrderBy(x => {EmitExpr(stage.Argument)})");
+                    else
+                        chain.Append(".OrderBy(x => x)");
                     break;
             }
         }
@@ -291,6 +304,7 @@ public sealed class CSharpEmitter
     private static string ToPascalCase(string name)
     {
         if (string.IsNullOrEmpty(name)) return name;
+        if (name.Length == 1) return char.ToUpper(name[0]).ToString();
         return char.ToUpper(name[0]) + name[1..];
     }
 

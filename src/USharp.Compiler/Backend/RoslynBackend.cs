@@ -52,7 +52,8 @@ public sealed class RoslynBackend
             foreach (var dll in Directory.GetFiles(runtimeDir, "*.dll"))
             {
                 try { refs.Add(MetadataReference.CreateFromFile(dll)); }
-                catch (Exception) { /* skip assemblies that can't be loaded as metadata references */ }
+                catch (BadImageFormatException) { /* skip non-managed assemblies */ }
+                catch (FileNotFoundException) { /* skip missing assemblies */ }
             }
         }
         return refs;
