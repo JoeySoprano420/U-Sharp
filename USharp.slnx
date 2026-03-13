@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/USharp.Collections/USharp.Collections.csproj" />
+    <Project Path="src/USharp.Compiler/USharp.Compiler.csproj" />
+    <Project Path="src/USharp.Compiler.Driver/USharp.Compiler.Driver.csproj" />
     <Project Path="src/USharp.Concurrency/USharp.Concurrency.csproj" />
     <Project Path="src/USharp.Core/USharp.Core.csproj" />
     <Project Path="src/USharp.Diagnostics/USharp.Diagnostics.csproj" />
@@ -12,6 +14,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/USharp.Collections.Tests/USharp.Collections.Tests.csproj" />
+    <Project Path="tests/USharp.Compiler.Tests/USharp.Compiler.Tests.csproj" />
     <Project Path="tests/USharp.Core.Tests/USharp.Core.Tests.csproj" />
     <Project Path="tests/USharp.IO.Tests/USharp.IO.Tests.csproj" />
     <Project Path="tests/USharp.Math.Tests/USharp.Math.Tests.csproj" />
